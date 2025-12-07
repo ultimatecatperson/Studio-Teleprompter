@@ -29,10 +29,10 @@ struct ContentView: View {
                     ToolThumbnail(title: "Teleprompter", imageName: "text.rectangle", color: .red)
                         .symbolEffect(.wiggle.up.byLayer, options: .speed(0.5))
                 }
-                ToolThumbnail(title: "Script Writer", imageName: "pencil.and.ellipsis.rectangle", color: .blue)
+                /*ToolThumbnail(title: "Script Writer", imageName: "pencil.and.ellipsis.rectangle", color: .blue)
                     .symbolEffect(.breathe, options: .speed(0.5))
                 ToolThumbnail(title: "Settings", imageName: "gear", color: .accent)
-                    .symbolEffect(.rotate, options: .speed(0.5))
+                    .symbolEffect(.rotate, options: .speed(0.5))*/
                 
                 ToolThumbnail(title: "More coming soon!", imageName: "", color: .gray)
             }
