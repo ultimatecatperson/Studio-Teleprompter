@@ -9,11 +9,13 @@ import SwiftUI
 
 struct Teleprompter: View {
     @State private var script: String = """
-Enter your script here. Your script is deleted when you close this page, so remember to copy the script up above and paste it into an app like Notes.
+Enter your script here. Your script is deleted when you close this page, so remember to copy the script up above and paste it into an app like Notes. However, it is recommended to write your script somewhere else and paste it here so you can't lose your work easily.
     
 You may use this teleprompter for speeches, presentations, meetings, videos, and much more!
         
-It's also easy to use. You can just type your script into this text area and even copy it in the menu in the toolbar above. When you adjust the settings, like the scroll speed and colors, then tap the Start button, it will start to scroll so you never lose your pace!
+It's also easy to use. You can just type your script into this text area and even copy it in the menu in the toolbar above. You can alse adjust the settings, like the scroll speed and colors.
+
+When you tap the Start button, it will start to scroll so you never lose your pace, boosting your confidence and audience engagement. Remember to speak clearly and keep eye contact!
 
 If you want it to stop scrolling, you can simply manual scroll a little bit and it'll stop.
 """
@@ -305,7 +307,7 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                 }
                 .onChange(of: scrollToBottom) { oldValue, newValue in
                     withAnimation(.linear(duration: (scrollDurationMinutes * 60) + scrollDurationSeconds)) {
-                        proxy.scrollTo("BottomAnchor", anchor: .bottom)
+                        proxy.scrollTo("BottomAnchor", anchor: .top)
                     }
                 }
                 .onChange(of: scrollToTop) { oldValue, newValue in
