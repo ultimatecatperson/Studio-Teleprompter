@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct Script_Writer: View {
     @State private var script: String = ""
@@ -13,10 +14,12 @@ struct Script_Writer: View {
     // Settings
     @State private var cursorColor: Color = .gray
     @State private var usingAI: Bool = false
+    @State private var autoUseAI: Bool = false
     
     @State private var justCopied: Bool = false
     
     @FocusState private var isEditing
+    let useAICollaborationTip = UseAICollaborationTip()
     
     var body: some View {
         ZStack {
@@ -60,9 +63,14 @@ struct Script_Writer: View {
                             } label: {
                                 Label("Copy Script", systemImage: "doc.on.doc")
                             }
+                            
+                            Toggle(isOn: $autoUseAI) {
+                                Label("AI Collaboration", systemImage: "apple.intelligence")
+                            }
                         } label: {
                             Image(systemName: "ellipsis")
                         }
+                        .popoverTip(useAICollaborationTip)
                     }
                 }
             }
@@ -106,10 +114,15 @@ struct Script_Writer: View {
                                             }
                                         }
                                     } catch {
-                                        
+                                        usingAI = false
                                     }
                                     usingAI = false
                                 }
+                            }
+                        }
+                        .onChange(of: script) {
+                            if autoUseAI && script.hasSuffix("\n\n") {
+                                usingAI = true
                             }
                         }
                 }
@@ -121,4 +134,10 @@ struct Script_Writer: View {
 
 #Preview {
     Script_Writer()
+        .task {
+            try? Tips.configure([
+                .displayFrequency(.immediate),
+                .datastoreLocation(.applicationDefault)
+            ])
+        }
 }
