@@ -102,6 +102,7 @@ struct Script_Writer: View {
                         .disabled(usingAI)
                         .onChange(of: usingAI) {
                             if usingAI {
+                                useAICollaborationTip.invalidate(reason: .actionPerformed)
                                 Task {
                                     do {
                                         let response = try await Generate(
