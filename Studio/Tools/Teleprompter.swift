@@ -2,7 +2,7 @@
 //  Teleprompter.swift
 //  Studio
 //
-//  Created by Xavier Finch on 12/6/25.
+//  Created by Random Meow on 12/6/25.
 //
 
 import SwiftUI
@@ -194,6 +194,22 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                                     }
                                 } label: {
                                     Label("Copy Script", systemImage: "doc.on.doc")
+                                }
+                                
+                                Button {
+                                    if let text = UIPasteboard.general.string {
+                                        script = text
+                                    } else {
+                                        script = ""
+                                    }
+                                } label: {
+                                    Label("Paste to Script", systemImage: "document")
+                                }
+                                
+                                Button {
+                                    script = ""
+                                } label: {
+                                    Label("Clear Script", systemImage: "trash")
                                 }
                                 
                                 Button {

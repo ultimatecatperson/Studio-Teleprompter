@@ -2,7 +2,7 @@
 //  Tip.swift
 //  Studio
 //
-//  Created by Xavier Finch on 12/7/25.
+//  Created by Random Meow on 12/7/25.
 //
 
 import Foundation

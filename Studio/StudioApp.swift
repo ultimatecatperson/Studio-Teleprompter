@@ -2,7 +2,7 @@
 //  StudioApp.swift
 //  Studio
 //
-//  Created by Xavier Finch on 12/5/25.
+//  Created by Random Meow on 12/5/25.
 //
 
 import SwiftUI
