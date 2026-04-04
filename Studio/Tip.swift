@@ -1,10 +1,3 @@
-//
-//  Tip.swift
-//  Studio
-//
-//  Created by Random Meow on 12/7/25.
-//
-
 import Foundation
 import TipKit
 

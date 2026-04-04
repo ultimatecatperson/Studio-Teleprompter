@@ -1,32 +1,19 @@
-//
-//  Teleprompter.swift
-//  Studio
-//
-//  Created by Random Meow on 12/6/25.
-//
-
 import SwiftUI
 
 struct Teleprompter: View {
     @State private var script: String = """
-Enter your script here. Your script is deleted when you close this page, so remember to copy the script up above and paste it into an app like Notes. However, it is recommended to write your script somewhere else and paste it here so you can't lose your work easily.
-    
-You may use this teleprompter for speeches, presentations, meetings, videos, and much more!
-        
-It's also easy to use. You can just type your script into this text area and even copy it in the menu in the toolbar above. You can alse adjust the settings, like the scroll speed and colors.
-
-When you tap the Start button, it will start to scroll so you never lose your pace, boosting your confidence and audience engagement. Remember to speak clearly and keep eye contact!
-
-If you want it to stop scrolling, you can simply manual scroll a little bit and it'll stop.
+Paste your script here using the menu in the toolbar.
 """
     
     // Settings
     @State private var backgroundColor: Color = .black
     @State private var foregroundColor: Color = .white
-    @State private var cursorColor: Color = .gray
-    @State private var fontSize: CGFloat = 48
-    @State private var hideQuickSettings: Bool = false
+    @State private var cursorColor: Color = .gray.opacity(0.5)
+    @State private var fontSize: CGFloat = 50
+    @State private var cursorSize: CGFloat = 75
+    @State private var showSettings: Bool = false
     
+    // Extras
     @State private var justCopied: Bool = false
     @State private var scrollToTop: Bool = false
     
@@ -50,6 +37,7 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                     .background(backgroundColor)
                     .foregroundStyle(foregroundColor)
                     .toolbar {
+                        // Auto scroll
                         ToolbarItem {
                             Button {
                                 scrollToBottom.toggle()
@@ -58,6 +46,7 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                             }
                         }
                         
+                        // Scroll to top
                         ToolbarItem {
                             Button {
                                 scrollToTop.toggle()
@@ -66,6 +55,7 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                             }
                         }
                         
+                        // Hide or show keyboard
                         ToolbarItem {
                             Button {
                                 isEditing.toggle()
@@ -76,114 +66,8 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                         }
                         
                         ToolbarItem {
+                            // Script controls
                             Menu {
-                                Menu {
-                                    Menu {
-                                        Button {
-                                            backgroundColor = .black
-                                            if foregroundColor == .black {
-                                                foregroundColor = .white
-                                            }
-                                        } label: {
-                                            Label("Black", systemImage: backgroundColor == .black ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            backgroundColor = .white
-                                            if foregroundColor == .white {
-                                                foregroundColor = .black
-                                            }
-                                        } label: {
-                                            Label("White", systemImage: backgroundColor == .white ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            backgroundColor = .gray
-                                            if foregroundColor == .gray {
-                                                foregroundColor = .white
-                                            }
-                                        } label: {
-                                            Label("Gray", systemImage: backgroundColor == .gray ? "checkmark" : "")
-                                        }
-                                    } label: {
-                                        Label("Background", systemImage: "rectangle")
-                                    }
-                                    
-                                    Menu {
-                                        Button {
-                                            foregroundColor = .black
-                                            if backgroundColor == .black {
-                                                backgroundColor = .white
-                                            }
-                                        } label: {
-                                            Label("Black", systemImage: foregroundColor == .black ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            foregroundColor = .white
-                                            if backgroundColor == .white {
-                                                backgroundColor = .black
-                                            }
-                                        } label: {
-                                            Label("White", systemImage: foregroundColor == .white ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            foregroundColor = .gray
-                                            if backgroundColor == .gray {
-                                                backgroundColor = .black
-                                            }
-                                        } label: {
-                                            Label("Gray", systemImage: foregroundColor == .gray ? "checkmark" : "")
-                                        }
-                                    } label: {
-                                        Label("Text", systemImage: "text.alignleft")
-                                    }
-                                    
-                                    Menu {
-                                        Button {
-                                            cursorColor = .white
-                                        } label: {
-                                            Label("White", systemImage: cursorColor == .white ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .gray
-                                        } label: {
-                                            Label("Gray", systemImage: cursorColor == .gray ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .black
-                                        } label: {
-                                            Label("Black", systemImage: cursorColor == .black ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .red
-                                        } label: {
-                                            Label("Red", systemImage: cursorColor == .red ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .green
-                                        } label: {
-                                            Label("Green", systemImage: cursorColor == .green ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .blue
-                                        } label: {
-                                            Label("Blue", systemImage: cursorColor == .blue ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .accent
-                                        } label: {
-                                            Label("Accent", systemImage: cursorColor == .accent ? "checkmark" : "")
-                                        }
-                                        Button {
-                                            cursorColor = .clear
-                                        } label: {
-                                            Label("None", systemImage: cursorColor == .clear ? "checkmark" : "")
-                                        }
-                                    } label: {
-                                        Label("Cursor", systemImage: "rectangle.fill")
-                                    }
-                                } label: {
-                                    Label("Color", systemImage: "paintpalette")
-                                }
-                                
                                 Button {
                                     UIPasteboard.general.string = script
                                     justCopied = true
@@ -211,12 +95,6 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                                 } label: {
                                     Label("Clear Script", systemImage: "trash")
                                 }
-                                
-                                Button {
-                                    hideQuickSettings.toggle()
-                                } label: {
-                                    Label(hideQuickSettings ? "Show Quick Settings" : "Hide Quick Settings", systemImage: "eye\(hideQuickSettings ? "" : ".slash")")
-                                }
                             } label: {
                                 Image(systemName: "ellipsis")
                             }
@@ -228,73 +106,101 @@ If you want it to stop scrolling, you can simply manual scroll a little bit and 
                 if !isEditing {
                     VStack {
                         Spacer()
-                        RoundedRectangle(cornerRadius: 10)
+                        Capsule()
                             .frame(maxWidth: .infinity)
-                            .frame(height: fontSize * 2)
-                            .foregroundColor(cursorColor.opacity(0.5))
+                            .frame(height: cursorSize)
+                            .foregroundColor(cursorColor)
                         Spacer()
                     }
                 }
                 
-                // Quick settings
-                if !isEditing && !hideQuickSettings {
-                    VStack {
-                        VStack {
-                            Slider(
-                                value: $scrollDurationMinutes,
-                                in: 0...60,
-                                step: 1
-                            ) {
-                                Text("Minutes")
-                            }
-                            .foregroundColor(foregroundColor)
-                            Slider(
-                                value: $scrollDurationSeconds,
-                                in: 0...60,
-                                step: 1
-                            ) {
-                                Text("Seconds")
-                            }
-                            .foregroundColor(foregroundColor)
-                            Text("\(Int(scrollDurationMinutes)) minute\(scrollDurationMinutes == 1 ? "" : "s") and \(Int(scrollDurationSeconds)) second\(scrollDurationSeconds == 1 ? "" : "s")")
-                                .foregroundStyle(foregroundColor)
-                        }
-                        .padding()
-                        .background(backgroundColor.opacity(0.8))
-                        .frame(maxHeight: 100)
-                        
-                        VStack {
-                            Slider(
-                                value: $fontSize,
-                                in: 12...140,
-                                step: 1
-                            ) {
-                                Text("Font size")
-                            }
-                            .foregroundColor(foregroundColor)
-                            Text("\(Int(fontSize)) px")
-                                .foregroundStyle(foregroundColor)
-                        }
-                        .padding()
-                        .background(backgroundColor.opacity(0.8))
-                        .frame(maxHeight: 100)
-                        
-                        Spacer()
-                    }
-                }
-                
-                // Alerts at the bottom of the screen
                 VStack {
-                    Spacer()
-                    if justCopied {
-                        ZStack {
-                            Label("Copied to clipboard", systemImage: "checkmark")
-                                .contentTransition(.symbolEffect(.replace))
+                    // Settings
+                    DisclosureGroup(isExpanded: $showSettings) {
+                        VStack {
+                            VStack {
+                                Slider(
+                                    value: $scrollDurationMinutes,
+                                    in: 0...60,
+                                    step: 1
+                                ) {
+                                    Text("Minutes")
+                                }
+                                .foregroundColor(foregroundColor)
+                                .tint(foregroundColor)
+                                Slider(
+                                    value: $scrollDurationSeconds,
+                                    in: 0...60,
+                                    step: 1
+                                ) {
+                                    Text("Seconds")
+                                }
+                                .foregroundColor(foregroundColor)
+                                .tint(foregroundColor)
+                                Text("\(Int(scrollDurationMinutes)) minute\(scrollDurationMinutes == 1 ? "" : "s") and \(Int(scrollDurationSeconds)) second\(scrollDurationSeconds == 1 ? "" : "s")")
+                                    .foregroundStyle(foregroundColor)
+                            }
+                            
+                            VStack {
+                                Slider(
+                                    value: $fontSize,
+                                    in: 12...140,
+                                    step: 1
+                                ) {
+                                    Text("Text size")
+                                }
+                                .foregroundColor(foregroundColor)
+                                .tint(foregroundColor)
+                                Text("Text size: **\(Int(fontSize))** px")
+                                    .foregroundStyle(foregroundColor)
+                            }
+                            
+                            VStack {
+                                Slider(
+                                    value: $cursorSize,
+                                    in: 0...200,
+                                    step: 1
+                                ) {
+                                    Text("Cursor size")
+                                }
+                                .foregroundColor(foregroundColor)
+                                .tint(foregroundColor)
+                                Text("Cursor size: **\(cursorSize == 0 ? "OFF" : "\(Int(cursorSize)) px")**")
+                                    .foregroundStyle(foregroundColor)
+                            }
+                            
+                            ColorPicker("Cursor color", selection: $cursorColor)
+                                .foregroundStyle(foregroundColor)
+                            
+                            ColorPicker("Text color", selection: $foregroundColor)
+                                .foregroundStyle(foregroundColor)
+                            
+                            ColorPicker("Background color", selection: $backgroundColor)
                                 .foregroundStyle(foregroundColor)
                         }
-                        .padding()
-                        .background(backgroundColor.opacity(0.8))
-                        .clipShape(RoundedRectangle(cornerRadius: 50))
+                    } label: {
+                        Label(showSettings ? "Hide Settings" : "Show Settings", systemImage: "\(showSettings ? "chevron.up" : "chevron.down")")
+                    }
+                    .padding()
+                    .background(backgroundColor.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 30))
+                    .foregroundStyle(foregroundColor)
+                    
+                    Spacer()
+                    
+                    // Alerts at the bottom of the screen
+                    VStack {
+                        Spacer()
+                        if justCopied {
+                            ZStack {
+                                Label("Copied to clipboard", systemImage: "checkmark")
+                                    .contentTransition(.symbolEffect(.replace))
+                                    .foregroundStyle(foregroundColor)
+                            }
+                            .padding()
+                            .background(backgroundColor.opacity(0.8))
+                            .clipShape(RoundedRectangle(cornerRadius: 50))
+                        }
                     }
                 }
             }

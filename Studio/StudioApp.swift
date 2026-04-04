@@ -1,10 +1,3 @@
-//
-//  StudioApp.swift
-//  Studio
-//
-//  Created by Random Meow on 12/5/25.
-//
-
 import SwiftUI
 import TipKit
 
