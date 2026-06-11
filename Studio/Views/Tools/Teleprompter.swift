@@ -6,12 +6,22 @@ Paste your script here using the menu in the toolbar.
 """
     
     // Settings
+    @AppStorage("Default Font Size") private var defaultFontSize: Double = 50.0
+    @AppStorage("Default Cursor Size") private var defaultCursorSize: Double = 100.0
     @State private var backgroundColor: Color = .black
     @State private var foregroundColor: Color = .white
-    @State private var cursorColor: Color = .gray.opacity(0.5)
+    @State private var cursorColor: Color = .gray.opacity(0)
     @State private var fontSize: CGFloat = 50
-    @State private var cursorSize: CGFloat = 75
+    @State private var cursorSize: CGFloat = 100
     @State private var showSettings: Bool = false
+    
+    init() {
+        let initialFontSize = UserDefaults.standard.double(forKey: "Default Font Size")
+        let initialCursorSize = UserDefaults.standard.double(forKey: "Default Cursor Size")
+        
+        self._fontSize = State(initialValue: CGFloat(initialFontSize))
+        self._cursorSize = State(initialValue: CGFloat(initialCursorSize))
+    }
     
     // Extras
     @State private var justCopied: Bool = false
@@ -106,10 +116,11 @@ Paste your script here using the menu in the toolbar.
                 if !isEditing {
                     VStack {
                         Spacer()
-                        Capsule()
+                        RoundedRectangle(cornerRadius: 30)
+                            .foregroundStyle(.clear)
                             .frame(maxWidth: .infinity)
                             .frame(height: cursorSize)
-                            .foregroundColor(cursorColor)
+                            .glassEffect(.clear.tint(cursorColor).interactive(), in: RoundedRectangle(cornerRadius: 30))
                         Spacer()
                     }
                 }
@@ -147,18 +158,18 @@ Paste your script here using the menu in the toolbar.
                                     in: 12...140,
                                     step: 1
                                 ) {
-                                    Text("Text size")
+                                    Text("Font size")
                                 }
                                 .foregroundColor(foregroundColor)
                                 .tint(foregroundColor)
-                                Text("Text size: **\(Int(fontSize))** px")
+                                Text("Font size: **\(Int(fontSize))** px")
                                     .foregroundStyle(foregroundColor)
                             }
                             
                             VStack {
                                 Slider(
                                     value: $cursorSize,
-                                    in: 0...200,
+                                    in: 0...400,
                                     step: 1
                                 ) {
                                     Text("Cursor size")
@@ -222,6 +233,7 @@ Paste your script here using the menu in the toolbar.
                         .font(.system(size: fontSize))
                         .lineLimit(15...Int.max)
                         .focused($isEditing)
+                        .padding(.horizontal, 5)
                     
                     Color.clear
                         .frame(height: 1)
@@ -233,7 +245,7 @@ Paste your script here using the menu in the toolbar.
                     }
                 }
                 .onChange(of: scrollToTop) { oldValue, newValue in
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.snappy(duration: 0.5)) {
                         proxy.scrollTo("TopAnchor", anchor: .bottom)
                     }
                 }

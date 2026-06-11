@@ -19,23 +19,19 @@ struct ContentView: View {
             
             LazyVGrid(columns: [GridItem(.flexible()),GridItem(.flexible())]) {
                 NavigationLink(destination: Teleprompter()) {
-                    ToolThumbnail(title: "Teleprompter", imageName: "text.rectangle", color: .red)
+                    ToolThumbnail(title: "Teleprompter", imageName: "text.rectangle")
                         .symbolEffect(.wiggle.up.byLayer, options: .speed(0.5))
                 }
-                NavigationLink(destination: Script_Writer()
-                    .task {
-                        try? Tips.configure([
-                            .displayFrequency(.immediate),
-                            .datastoreLocation(.applicationDefault)
-                        ])
-                    }) {
-                    ToolThumbnail(title: "Script Writer", imageName: "pencil.and.ellipsis.rectangle", color: .blue)
+                NavigationLink(destination: Script_Writer()) {
+                    ToolThumbnail(title: "Script Writer", imageName: "pencil.and.ellipsis.rectangle")
                         .symbolEffect(.breathe, options: .speed(0.5))
                 }
-                /*ToolThumbnail(title: "Settings", imageName: "gear", color: .accent)
-                    .symbolEffect(.rotate, options: .speed(0.5))*/
+                NavigationLink(destination: SettingsView()) {
+                    ToolThumbnail(title: "Settings", imageName: "gear")
+                        .symbolEffect(.rotate, options: .speed(0.5))
+                }
                 
-                ToolThumbnail(title: "More coming soon!", imageName: "", color: .gray)
+                ToolThumbnail(title: "More coming soon!", imageName: "")
             }
         }
     }
@@ -44,18 +40,17 @@ struct ContentView: View {
 struct ToolThumbnail: View {
     @State var title: String
     @State var imageName: String = ""
-    @State var color: Color = .accent
     
     var body: some View {
         ZStack {
-            LinearGradient(
+            /*LinearGradient(
                 colors: [
                     color.opacity(0.4),
                     color.opacity(0.5)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
-            )
+            )*/
             
             VStack(alignment: .center) {
                 Image(systemName: imageName)
@@ -74,8 +69,9 @@ struct ToolThumbnail: View {
             .padding()
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 125)
-        .cornerRadius(15)
+        .frame(maxHeight: .infinity)
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 30))
+        .padding(5)
         .tint(.primary)
     }
 }
