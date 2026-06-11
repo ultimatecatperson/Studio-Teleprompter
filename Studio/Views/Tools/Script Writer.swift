@@ -9,6 +9,7 @@ struct Script_Writer: View {
     // Settings
     @State private var cursorColor: Color = .gray
     @State private var usingAI: Bool = false
+    @AppStorage("AI Feature") private var aiFeature: Bool = true
     
     @State private var justCopied: Bool = false
     
@@ -55,19 +56,20 @@ struct Script_Writer: View {
                     }
                     
                     // Bottom‑bar controls
-                    ToolbarItemGroup(placement: .bottomBar) {
-                        TextField(script.isEmpty ? "Start your script with AI" : "Edit your script with AI", text: $aiPrompt)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity)
-                            .padding(.horizontal)
-                        
-                        Button {
-                            Task {
-                                do {
-                                    usingAI = true
-                                    let session = LanguageModelSession(
-                                        model: SystemLanguageModel(),
-                                        instructions:
+                    if aiFeature {
+                        ToolbarItemGroup(placement: .bottomBar) {
+                            TextField(script.isEmpty ? "Start your script with AI" : "Edit your script with AI", text: $aiPrompt)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal)
+                            
+                            Button {
+                                Task {
+                                    do {
+                                        usingAI = true
+                                        let session = LanguageModelSession(
+                                            model: SystemLanguageModel(),
+                                            instructions:
                                             """
                                             Edit the script based on the pwrompt.
                                             There is only one speaker, and do not add any tags or describe actions or scenes or anything like that unless the script already has them or the prompt says so.
@@ -75,32 +77,33 @@ struct Script_Writer: View {
                                             Only provide the revised script in your response.
                                             
                                             """
-                                    )
-                                    let response = try await session.respond {
+                                        )
+                                        let response = try await session.respond {
                                         """
                                         Prompt: "\(aiPrompt)"
                                         Script: "\(script)"
                                         """
-                                    }
-                                    if !response.content.isEmpty {
-                                        withAnimation {
-                                            script = response.content
                                         }
+                                        if !response.content.isEmpty {
+                                            withAnimation {
+                                                script = response.content
+                                            }
+                                        }
+                                        usingAI = false
+                                        aiPrompt = ""
+                                    } catch {
+                                        usingAI = false
                                     }
-                                    usingAI = false
-                                    aiPrompt = ""
-                                } catch {
-                                    usingAI = false
+                                }
+                            } label: {
+                                if !usingAI {
+                                    Image(systemName: "arrow.up")
+                                } else {
+                                    ProgressView()
                                 }
                             }
-                        } label: {
-                            if !usingAI {
-                                Image(systemName: "arrow.up")
-                            } else {
-                                ProgressView()
-                            }
+                            .disabled(usingAI)
                         }
-                        .disabled(usingAI)
                     }
                 }
             }

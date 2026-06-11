@@ -4,10 +4,16 @@
     
 
 import SwiftUI
+import FoundationModels
 
 struct SettingsView: View {
+    // Teleprompter
     @AppStorage("Default Font Size") var defaultFontSize: Double = 50.0
     @AppStorage("Default Cursor Size") var defaultCursorSize: Double = 100.0
+    @AppStorage("Glass Cursor") var glassCursor: Bool = true
+    
+    // Script Writer
+    @AppStorage("AI Feature") var aiFeature: Bool = true
     
     var body: some View {
         NavigationStack {
@@ -27,7 +33,7 @@ struct SettingsView: View {
                     VStack {
                         Slider(
                             value: $defaultCursorSize,
-                            in: 0...400,
+                            in: 0...200,
                             step: 1
                         ) {
                             Text("Default Cursor size")
@@ -35,10 +41,27 @@ struct SettingsView: View {
                         Text("Default Cursor Size: **\(Int(defaultCursorSize))** px")
                     }
                     
-                    Text("Restart the app to apply any changes.")
-                        .font(.caption)
+                    Toggle("Glass Cursor", isOn: $glassCursor)
                     
                     ZStack {
+                        // Cursor
+                        VStack {
+                            Spacer()
+                            if glassCursor {
+                                RoundedRectangle(cornerRadius: 30)
+                                    .foregroundStyle(.clear)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: defaultCursorSize)
+                                    .glassEffect(.clear.tint(.gray.opacity(0.5)).interactive(), in: RoundedRectangle(cornerRadius: 30))
+                            } else {
+                                RoundedRectangle(cornerRadius: 30)
+                                    .foregroundStyle(.gray.opacity(0.5))
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: defaultCursorSize)
+                            }
+                            Spacer()
+                        }
+                        
                         ScrollView {
                             VStack {
                                 ScrollViewReader { proxy in
@@ -62,16 +85,32 @@ struct SettingsView: View {
                                 }
                             }
                         }
-                        .frame(height: 400)
-                        
-                        VStack {
-                            Spacer()
-                            RoundedRectangle(cornerRadius: 30)
-                                .foregroundStyle(.clear)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: defaultCursorSize)
-                                .glassEffect(.clear.tint(.gray.opacity(0)).interactive(), in: RoundedRectangle(cornerRadius: 30))
-                            Spacer()
+                        .frame(height: 250)
+                    }
+                }
+                
+                Section("Script Writer") {
+                    VStack {
+                        Toggle("AI Feature", isOn: $aiFeature)
+                        Text("AI feature uses Apple Intelligence, which is only available on iPhone 15 Pro and newer or iPad with M1 chip or newer.")
+                            .font(.caption)
+                        let model = SystemLanguageModel.default
+                        switch model.availability {
+                        case .available:
+                            Text("You have Apple Intelligence.")
+                                .foregroundStyle(.green)
+                        case .unavailable(.deviceNotEligible):
+                            Text("Apple Intelligence is not available on this device.")
+                                .foregroundStyle(.red)
+                        case .unavailable(.appleIntelligenceNotEnabled):
+                            Text("You need to enable Apple Intelligence in Settings.")
+                                .foregroundStyle(.yellow)
+                        case .unavailable(.modelNotReady):
+                            Text("The model isn't ready.")
+                                .foregroundStyle(.red)
+                        case .unavailable(_):
+                            Text("Unknown error.")
+                                .foregroundStyle(.yellow)
                         }
                     }
                 }
@@ -80,11 +119,14 @@ struct SettingsView: View {
                     Text("Made by Random Meow, 2026. You may use Studio for anything, including both personal and commercial projects.")
                         .font(.caption)
                     Link(destination: URL(string: "https://github.com/ultimatecatperson/Studio-Teleprompter")!) {
-                        Label("Open source", systemImage: "arrow.up.forward")
+                        Label("Open source (GitHub)", systemImage: "arrow.up.forward")
                     }
                 }
             }
             .navigationTitle("Settings")
+            .task {
+                
+            }
         }
     }
 }

@@ -8,20 +8,13 @@ Paste your script here using the menu in the toolbar.
     // Settings
     @AppStorage("Default Font Size") private var defaultFontSize: Double = 50.0
     @AppStorage("Default Cursor Size") private var defaultCursorSize: Double = 100.0
+    @AppStorage("Glass Cursor") private var glassCursor: Bool = true
     @State private var backgroundColor: Color = .black
     @State private var foregroundColor: Color = .white
-    @State private var cursorColor: Color = .gray.opacity(0)
+    @State private var cursorColor: Color = .gray.opacity(0.5)
     @State private var fontSize: CGFloat = 50
     @State private var cursorSize: CGFloat = 100
     @State private var showSettings: Bool = false
-    
-    init() {
-        let initialFontSize = UserDefaults.standard.double(forKey: "Default Font Size")
-        let initialCursorSize = UserDefaults.standard.double(forKey: "Default Cursor Size")
-        
-        self._fontSize = State(initialValue: CGFloat(initialFontSize))
-        self._cursorSize = State(initialValue: CGFloat(initialCursorSize))
-    }
     
     // Extras
     @State private var justCopied: Bool = false
@@ -37,6 +30,26 @@ Paste your script here using the menu in the toolbar.
     var body: some View {
         NavigationStack {
             ZStack {
+                // Cursor
+                if !isEditing {
+                    VStack {
+                        Spacer()
+                        if glassCursor {
+                            RoundedRectangle(cornerRadius: 30)
+                                .foregroundStyle(.clear)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: cursorSize)
+                                .glassEffect(.clear.tint(cursorColor).interactive(), in: RoundedRectangle(cornerRadius: 30))
+                        } else {
+                            RoundedRectangle(cornerRadius: 30)
+                                .foregroundStyle(cursorColor)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: cursorSize)
+                        }
+                        Spacer()
+                    }
+                }
+                
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack {
@@ -44,7 +57,6 @@ Paste your script here using the menu in the toolbar.
                         }
                         .padding(.vertical, 500)
                     }
-                    .background(backgroundColor)
                     .foregroundStyle(foregroundColor)
                     .toolbar {
                         // Auto scroll
@@ -112,19 +124,6 @@ Paste your script here using the menu in the toolbar.
                     }
                 }
                 
-                // Cursor
-                if !isEditing {
-                    VStack {
-                        Spacer()
-                        RoundedRectangle(cornerRadius: 30)
-                            .foregroundStyle(.clear)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: cursorSize)
-                            .glassEffect(.clear.tint(cursorColor).interactive(), in: RoundedRectangle(cornerRadius: 30))
-                        Spacer()
-                    }
-                }
-                
                 VStack {
                     // Settings
                     DisclosureGroup(isExpanded: $showSettings) {
@@ -169,7 +168,7 @@ Paste your script here using the menu in the toolbar.
                             VStack {
                                 Slider(
                                     value: $cursorSize,
-                                    in: 0...400,
+                                    in: 0...200,
                                     step: 1
                                 ) {
                                     Text("Cursor size")
@@ -215,8 +214,12 @@ Paste your script here using the menu in the toolbar.
                     }
                 }
             }
+            .background(backgroundColor)
             .task {
-                scrollToBottom.toggle()
+                scrollToTop.toggle()
+                
+                fontSize = defaultFontSize
+                cursorSize = defaultCursorSize
             }
         }
     }
