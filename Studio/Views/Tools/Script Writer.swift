@@ -10,6 +10,7 @@ struct Script_Writer: View {
     @State private var cursorColor: Color = .gray
     @State private var usingAI: Bool = false
     @AppStorage("AI Feature") private var aiFeature: Bool = true
+    @AppStorage("Auto Copy") private var autoCopy: Bool = false
     
     @State private var justCopied: Bool = false
     
@@ -35,7 +36,6 @@ struct Script_Writer: View {
                         }
                         .disabled(usingAI)
                         
-                        // Copy‑script menu
                         Menu {
                             Button {
                                 UIPasteboard.general.string = script
@@ -49,6 +49,22 @@ struct Script_Writer: View {
                                 }
                             } label: {
                                 Label("Copy Script", systemImage: "doc.on.doc")
+                            }
+                            
+                            Button {
+                                if let text = UIPasteboard.general.string {
+                                    script = text
+                                } else {
+                                    script = ""
+                                }
+                            } label: {
+                                Label("Paste to Script", systemImage: "document")
+                            }
+                            
+                            Button {
+                                script = ""
+                            } label: {
+                                Label("Clear Script", systemImage: "trash")
                             }
                         } label: {
                             Image(systemName: "ellipsis")
@@ -103,6 +119,25 @@ struct Script_Writer: View {
                                 }
                             }
                             .disabled(usingAI)
+                        }
+                    }
+                }
+                .onChange(of: script) { oldValue, newValue in
+                    if autoCopy {
+                        if !newValue.isEmpty {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                if newValue == script {
+                                    UIPasteboard.general.string = script
+                                    withAnimation {
+                                        justCopied = true
+                                    }
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                        withAnimation {
+                                            justCopied = false
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

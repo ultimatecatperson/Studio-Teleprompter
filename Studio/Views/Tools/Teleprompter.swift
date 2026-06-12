@@ -1,4 +1,6 @@
 import SwiftUI
+import Foundation
+internal import Combine
 
 struct Teleprompter: View {
     @State private var script: String = """
@@ -6,6 +8,7 @@ Paste your script here using the menu in the toolbar.
 """
     
     // Settings
+    @AppStorage("Default Scroll Speed") var defaultScrollSpeed: Double = 50.0
     @AppStorage("Default Font Size") private var defaultFontSize: Double = 50.0
     @AppStorage("Default Cursor Size") private var defaultCursorSize: Double = 100.0
     @AppStorage("Glass Cursor") private var glassCursor: Bool = true
@@ -21,11 +24,29 @@ Paste your script here using the menu in the toolbar.
     @State private var scrollToTop: Bool = false
     
     // Auto scrolling settings
-    @State private var scrollToBottom: Bool = false
-    @State private var scrollDurationMinutes: Double = 0
-    @State private var scrollDurationSeconds: Double = 30
+    @State private var scrollSpeed: Double = 50
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isAutoScrolling: Bool = false
+    @State private var timer: Timer? = nil
+
     
     @FocusState private var isEditing
+    
+    // Auto scrolling timer (made with Gemini)
+    func toggleScrolling() {
+        if timer != nil {
+            timer?.invalidate()
+            timer = nil
+        } else {
+            // Here, 0.1 is the update interval (10 times per second)
+            // scrollSpeed / 1000 determines how many units to jump
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+                // This is pseudo-code for the implementation strategy:
+                // You would use a GeometryReader or ScrollView offset binding
+                // to adjust the Y-offset of your content stack by (scrollSpeed * constant)
+            }
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -50,76 +71,74 @@ Paste your script here using the menu in the toolbar.
                     }
                 }
                 
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        VStack {
-                            teleprompter
+                VStack {
+                    teleprompter
+                }
+                .foregroundStyle(foregroundColor)
+                .toolbar {
+                    // Auto scroll
+                    ToolbarItem {
+                        Button {
+                            isAutoScrolling.toggle()
+                        } label: {
+                            Image(systemName: isAutoScrolling ? "pause.fill" : "play.fill")
                         }
-                        .padding(.vertical, 500)
+
                     }
-                    .foregroundStyle(foregroundColor)
-                    .toolbar {
-                        // Auto scroll
-                        ToolbarItem {
-                            Button {
-                                scrollToBottom.toggle()
-                            } label: {
-                                Image(systemName: "play.fill")
-                            }
+                    
+                    // Scroll to top
+                    ToolbarItem {
+                        Button {
+                            scrollOffset = 0
+                        } label: {
+                            Image(systemName: "arrow.up")
                         }
-                        
-                        // Scroll to top
-                        ToolbarItem {
-                            Button {
-                                scrollToTop.toggle()
-                            } label: {
-                                Image(systemName: "arrow.up")
-                            }
+                    }
+                    
+                    // Hide or show keyboard
+                    ToolbarItem {
+                        Button {
+                            isEditing.toggle()
+                        } label: {
+                            Image(systemName: isEditing ? "keyboard.chevron.compact.down" : "keyboard")
+                                .contentTransition(.symbolEffect(.replace))
                         }
-                        
-                        // Hide or show keyboard
-                        ToolbarItem {
+                    }
+                    
+                    ToolbarItem {
+                        // Script controls
+                        Menu {
                             Button {
-                                isEditing.toggle()
-                            } label: {
-                                Image(systemName: isEditing ? "keyboard.chevron.compact.down" : "keyboard")
-                                    .contentTransition(.symbolEffect(.replace))
-                            }
-                        }
-                        
-                        ToolbarItem {
-                            // Script controls
-                            Menu {
-                                Button {
-                                    UIPasteboard.general.string = script
+                                UIPasteboard.general.string = script
+                                withAnimation {
                                     justCopied = true
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                        withAnimation {
-                                            justCopied = false
-                                        }
-                                    }
-                                } label: {
-                                    Label("Copy Script", systemImage: "doc.on.doc")
                                 }
-                                
-                                Button {
-                                    if let text = UIPasteboard.general.string {
-                                        script = text
-                                    } else {
-                                        script = ""
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation {
+                                        justCopied = false
                                     }
-                                } label: {
-                                    Label("Paste to Script", systemImage: "document")
-                                }
-                                
-                                Button {
-                                    script = ""
-                                } label: {
-                                    Label("Clear Script", systemImage: "trash")
                                 }
                             } label: {
-                                Image(systemName: "ellipsis")
+                                Label("Copy Script", systemImage: "doc.on.doc")
                             }
+                            
+                            Button {
+                                if let text = UIPasteboard.general.string {
+                                    script = text
+                                } else {
+                                    script = ""
+                                }
+                            } label: {
+                                Label("Paste to Script", systemImage: "document")
+                            }
+                            
+                            Button {
+                                script = ""
+                            } label: {
+                                Label("Clear Script", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis")
                         }
                     }
                 }
@@ -130,24 +149,15 @@ Paste your script here using the menu in the toolbar.
                         VStack {
                             VStack {
                                 Slider(
-                                    value: $scrollDurationMinutes,
-                                    in: 0...60,
+                                    value: $scrollSpeed,
+                                    in: 10...200,
                                     step: 1
                                 ) {
-                                    Text("Minutes")
+                                    Text("Speed")
                                 }
                                 .foregroundColor(foregroundColor)
                                 .tint(foregroundColor)
-                                Slider(
-                                    value: $scrollDurationSeconds,
-                                    in: 0...60,
-                                    step: 1
-                                ) {
-                                    Text("Seconds")
-                                }
-                                .foregroundColor(foregroundColor)
-                                .tint(foregroundColor)
-                                Text("\(Int(scrollDurationMinutes)) minute\(scrollDurationMinutes == 1 ? "" : "s") and \(Int(scrollDurationSeconds)) second\(scrollDurationSeconds == 1 ? "" : "s")")
+                                Text("Speed: **\(Int(scrollSpeed))**")
                                     .foregroundStyle(foregroundColor)
                             }
                             
@@ -216,8 +226,7 @@ Paste your script here using the menu in the toolbar.
             }
             .background(backgroundColor)
             .task {
-                scrollToTop.toggle()
-                
+                scrollSpeed = defaultScrollSpeed
                 fontSize = defaultFontSize
                 cursorSize = defaultCursorSize
             }
@@ -225,37 +234,22 @@ Paste your script here using the menu in the toolbar.
     }
     
     var teleprompter: some View {
-        ZStack {
-            ScrollViewReader { proxy in
-                VStack(alignment: .leading, spacing: 16) {
-                    Color.clear
-                        .frame(height: 1)
-                        .id("TopAnchor")
-                    
-                    TextField("Script", text: $script, axis: .vertical)
-                        .font(.system(size: fontSize))
-                        .lineLimit(15...Int.max)
-                        .focused($isEditing)
-                        .padding(.horizontal, 5)
-                    
-                    Color.clear
-                        .frame(height: 1)
-                        .id("BottomAnchor")
-                }
-                .onChange(of: scrollToBottom) { oldValue, newValue in
-                    withAnimation(.linear(duration: (scrollDurationMinutes * 60) + scrollDurationSeconds)) {
-                        proxy.scrollTo("BottomAnchor", anchor: .top)
-                    }
-                }
-                .onChange(of: scrollToTop) { oldValue, newValue in
-                    withAnimation(.snappy(duration: 0.5)) {
-                        proxy.scrollTo("TopAnchor", anchor: .bottom)
-                    }
-                }
-                .padding(.horizontal)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Spacer(minLength: 440)
+                Text(script)
+                    .font(.system(size: fontSize))
+                    .padding(.horizontal, 10)
+            }
+            .offset(y: -scrollOffset)
+        }
+        .onReceive(Timer.publish(every: 0.001, on: .main, in: .common).autoconnect()) { _ in
+            if isAutoScrolling {
+                scrollOffset += (scrollSpeed / 100.0) * 0.3
             }
         }
     }
+
 }
 
 #Preview {

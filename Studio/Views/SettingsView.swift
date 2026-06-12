@@ -8,17 +8,30 @@ import FoundationModels
 
 struct SettingsView: View {
     // Teleprompter
+    @AppStorage("Default Scroll Speed") var defaultScrollSpeed: Double = 50.0
     @AppStorage("Default Font Size") var defaultFontSize: Double = 50.0
     @AppStorage("Default Cursor Size") var defaultCursorSize: Double = 100.0
     @AppStorage("Glass Cursor") var glassCursor: Bool = true
     
     // Script Writer
     @AppStorage("AI Feature") var aiFeature: Bool = true
+    @AppStorage("Auto Copy") var autoCopy: Bool = false
     
     var body: some View {
         NavigationStack {
             List {
                 Section("Teleprompter") {
+                    VStack {
+                        Slider(
+                            value: $defaultScrollSpeed,
+                            in: 10...200,
+                            step: 1
+                        ) {
+                            Text("Default Speed")
+                        }
+                        Text("Default Speed: **\(Int(defaultScrollSpeed))**")
+                    }
+                    
                     VStack {
                         Slider(
                             value: $defaultFontSize,
@@ -63,27 +76,56 @@ struct SettingsView: View {
                         }
                         
                         ScrollView {
-                            VStack {
-                                ScrollViewReader { proxy in
-                                    Text("""
-                                 
-                                 
-                                 This is how it would look.
-                                 Try scrolling.
-                                 
-                                 I would have maybe added a feature where Apple Intelligence generates a new sample text every time this shows up, but I couldn't think of what it would write about.
-                                 
-                                 Then I was thinking about pickles.
-                                 I think pickles are good, but not everyone agrees. Probably, the smell is a little much sometimes.
-                                 
-                                 Anyway, I hope this looks good, and thanks for using my app!
-                                 
-                                 
-                                 """)
-                                    .font(.system(size: defaultFontSize))
-                                    .padding(.horizontal, 20)
-                                }
-                            }
+                            Text("""
+                             
+                             
+                             This is how it will look.
+                             
+                             The factory default values are: Speed = 50, Font size = 50, Cursor size = 100.
+                             
+                             Also have you checked out Swipe Shark? (It's my game on the App Store)
+                             
+                             Okay, here's a joke: You should meet my friend Mushroom. He’s a fun guy.
+                             
+                             Anyway, I hope this looks good, and thanks for using my app!
+                             
+                             
+                             
+                             
+                             
+                             
+                             
+                             Okay, don't scroll any further.
+                             
+                             
+                             I'm warning you...
+                             
+                             
+                             
+                             Stop!
+                             
+                             
+                             
+                             
+                             Okay, fine.
+                             
+                             
+                             
+                             Ready?
+                             
+                             
+                             
+                             
+                             Never gonna give you up, never gonna let you down!
+                             
+                             Yeah, it was a RickRoll.
+                             
+                             :)
+                             
+                             
+                             """)
+                            .font(.system(size: defaultFontSize))
+                            .padding(.horizontal, 20)
                         }
                         .frame(height: 250)
                     }
@@ -94,6 +136,7 @@ struct SettingsView: View {
                         Toggle("AI Feature", isOn: $aiFeature)
                         Text("AI feature uses Apple Intelligence, which is only available on iPhone 15 Pro and newer or iPad with M1 chip or newer.")
                             .font(.caption)
+                            .padding(.vertical, 5)
                         let model = SystemLanguageModel.default
                         switch model.availability {
                         case .available:
@@ -113,6 +156,8 @@ struct SettingsView: View {
                                 .foregroundStyle(.yellow)
                         }
                     }
+                    
+                    Toggle("Auto Copy", isOn: $autoCopy)
                 }
                 
                 Section("Credits") {
@@ -124,9 +169,6 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
-            .task {
-                
-            }
         }
     }
 }
