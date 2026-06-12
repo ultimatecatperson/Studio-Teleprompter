@@ -24,6 +24,7 @@ struct Script_Writer: View {
                     contentStack
                 }
                 .navigationTitle("Script Writer")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     // Main toolbar area
                     ToolbarItemGroup(placement: .navigationBarTrailing) {

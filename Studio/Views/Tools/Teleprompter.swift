@@ -236,6 +236,8 @@ If you need to make a quick change, bring the script to Script Writer (also in t
                 fontSize = defaultFontSize
                 cursorSize = defaultCursorSize
             }
+            .navigationTitle("Teleprompter")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
     
