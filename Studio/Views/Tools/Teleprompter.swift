@@ -3,8 +3,10 @@ import Foundation
 internal import Combine
 
 struct Teleprompter: View {
-    @State private var script: String = """
+    @State var script: String = """
 Paste your script here using the menu in the toolbar.
+
+If you need to make a quick change, bring the script to Script Writer (also in the menu).
 """
     
     // Settings
@@ -76,32 +78,19 @@ Paste your script here using the menu in the toolbar.
                 }
                 .foregroundStyle(foregroundColor)
                 .toolbar {
-                    // Auto scroll
-                    ToolbarItem {
+                    ToolbarItemGroup {
+                        // Auto scroll
                         Button {
                             isAutoScrolling.toggle()
                         } label: {
                             Image(systemName: isAutoScrolling ? "pause.fill" : "play.fill")
                         }
-
-                    }
                     
-                    // Scroll to top
-                    ToolbarItem {
+                        // Jump to top
                         Button {
                             scrollOffset = 0
                         } label: {
                             Image(systemName: "arrow.up")
-                        }
-                    }
-                    
-                    // Hide or show keyboard
-                    ToolbarItem {
-                        Button {
-                            isEditing.toggle()
-                        } label: {
-                            Image(systemName: isEditing ? "keyboard.chevron.compact.down" : "keyboard")
-                                .contentTransition(.symbolEffect(.replace))
                         }
                     }
                     
@@ -137,6 +126,12 @@ Paste your script here using the menu in the toolbar.
                             } label: {
                                 Label("Clear Script", systemImage: "trash")
                             }
+                            
+                            Divider()
+                            
+                            NavigationLink(destination: Script_Writer(script: script)) {
+                                Label("Edit in Script Writer", systemImage: "pencil")
+                            }
                         } label: {
                             Image(systemName: "ellipsis")
                         }
@@ -150,7 +145,7 @@ Paste your script here using the menu in the toolbar.
                             VStack {
                                 Slider(
                                     value: $scrollSpeed,
-                                    in: 10...200,
+                                    in: fontSize < 100 ? 10...200 : 50...400,
                                     step: 1
                                 ) {
                                     Text("Speed")
@@ -159,6 +154,17 @@ Paste your script here using the menu in the toolbar.
                                 .tint(foregroundColor)
                                 Text("Speed: **\(Int(scrollSpeed))**")
                                     .foregroundStyle(foregroundColor)
+                            }
+                            .onChange(of: fontSize) { oldValue, newValue in
+                                if newValue < 100 {
+                                    if scrollSpeed > 200 {
+                                        scrollSpeed = 200
+                                    }
+                                } else {
+                                    if scrollSpeed < 50 {
+                                        scrollSpeed = 50
+                                    }
+                                }
                             }
                             
                             VStack {
@@ -245,7 +251,8 @@ Paste your script here using the menu in the toolbar.
         }
         .onReceive(Timer.publish(every: 0.001, on: .main, in: .common).autoconnect()) { _ in
             if isAutoScrolling {
-                scrollOffset += (scrollSpeed / 100.0) * 0.3
+                let fontScale = fontSize / 50
+                scrollOffset += (scrollSpeed / 100.0) * 0.3 * fontScale
             }
         }
     }

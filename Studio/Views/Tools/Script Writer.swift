@@ -3,7 +3,7 @@ import TipKit
 import FoundationModels
 
 struct Script_Writer: View {
-    @State private var script: String = ""
+    @State var script: String = ""
     @State private var aiPrompt: String = ""
     
     // Settings
@@ -66,6 +66,12 @@ struct Script_Writer: View {
                             } label: {
                                 Label("Clear Script", systemImage: "trash")
                             }
+                            
+                            Divider()
+                            
+                            NavigationLink(destination: Teleprompter(script: script)) {
+                                Label("View in Teleprompter", systemImage: "arrow.right")
+                            }
                         } label: {
                             Image(systemName: "ellipsis")
                         }
@@ -87,7 +93,7 @@ struct Script_Writer: View {
                                             model: SystemLanguageModel(),
                                             instructions:
                                             """
-                                            Edit the script based on the pwrompt.
+                                            Edit the script based on the prompt.
                                             There is only one speaker, and do not add any tags or describe actions or scenes or anything like that unless the script already has them or the prompt says so.
                                             DO NOT use Markdown, because formatting doesn't work.
                                             Only provide the revised script in your response.
