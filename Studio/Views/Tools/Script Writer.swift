@@ -15,7 +15,6 @@ struct Script_Writer: View {
     @State private var justCopied: Bool = false
     
     @FocusState private var isEditing
-    let useAICollaborationTip = UseAICollaborationTip()
     
     var body: some View {
         ZStack {
@@ -70,7 +69,7 @@ struct Script_Writer: View {
                             
                             Divider()
                             
-                            NavigationLink(destination: Teleprompter(script: script)) {
+                            NavigationLink(destination: SteadyScrollTeleprompter(script: script)) {
                                 Label("View in Teleprompter", systemImage: "arrow.right")
                             }
                         } label: {

@@ -2,7 +2,7 @@ import SwiftUI
 import Foundation
 internal import Combine
 
-struct Teleprompter: View {
+struct SteadyScrollTeleprompter: View {
     @State var script: String = """
 Paste your script here using the menu in the toolbar.
 
@@ -88,7 +88,9 @@ If you need to make a quick change, bring the script to Script Writer (also in t
                     
                         // Jump to top
                         Button {
-                            scrollOffset = 0
+                            withAnimation {
+                                scrollOffset = 0
+                            }
                         } label: {
                             Image(systemName: "arrow.up")
                         }
@@ -262,5 +264,5 @@ If you need to make a quick change, bring the script to Script Writer (also in t
 }
 
 #Preview {
-    Teleprompter()
+    SteadyScrollTeleprompter()
 }
